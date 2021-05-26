@@ -7,7 +7,6 @@ branch: master
 badges: true
 comments: true
 categories: [fastpages, jupyter]
-image: images/2021_05_24_cnn_example_1.png
 hide: false
 search_exclude: true
 nb_path: _notebooks/2021-05-23-voting_authority_1_problem.ipynb

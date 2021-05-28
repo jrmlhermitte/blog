@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "my_blog"
+name = "blog"
 version = "0.1.0"
 description = ""
 authors = ["Julien Lhermitte"]

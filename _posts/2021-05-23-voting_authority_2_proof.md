@@ -37,9 +37,9 @@ $$</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Simple-Case:-Two-Authorities-vote-the-same-positive-result">Simple Case: Two Authorities vote the same positive result<a class="anchor-link" href="#Simple-Case:-Two-Authorities-vote-the-same-positive-result"> </a></h2><p>We will first consider the first case where we have only two authorities that vote for the same result. Let's say we have a universe of points $U$ of which some are true (green) and some false (red):
-{% include image.html alt="CNN Example" max-width="200" file="/my_blog/images/copied_from_nb/images/2021_05_16_combined_authority_figa.png" %}</p>
+{% include image.html alt="Figure 1" max-width="200" file="/blog/images/copied_from_nb/images/2021_05_16_combined_authority_figa.png" %}</p>
 <p>And within this universe, we have two authorities $A_1$ and $A_2$ which have a subset of points that they decide are true:</p>
-<p>{% include image.html alt="CNN Example" max-width="200" file="/my_blog/images/copied_from_nb/images/2021_05_16_combined_authority_figb.png" %}</p>
+<p>{% include image.html alt="Figure 2" max-width="200" file="/blog/images/copied_from_nb/images/2021_05_16_combined_authority_figb.png" %}</p>
 <p>Here, the points that $A_1$ believes are true are denoted by the blue circle and the points that $A_2$ believes to be true are denoted by the purple circle. So points that $A_1$ and $A_2$ to both believe to be true would be represented by the overlap.</p>
 <p>It should be noted that here, without loss of generality, we assume the points are arranged in such a way so that we may draw such a picture. Points that both $A_1$ and $A_2$ believe to be true that is also true are grouped close together as are the ones where $A_1$ and $A_2$ believe to be true but are in fact not true etc etc.</p>
 <p>This image is not needed for the actual proof, but I think it helps give a better picture of what is going on.</p>

@@ -41,7 +41,7 @@ knowledgegraphs that one develops, and I'd like to show you how.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Social-Media-Finder-Example">Social Media Finder Example<a class="anchor-link" href="#Social-Media-Finder-Example"> </a></h2><p>Let's say, for example, you have some hypotheses of potential twitter accounts for a certain domain, <code>cnn.com</code>, one <code>@CNN</code> and the other <code>@JohnDoe</code>. How do you know if they are right or wrong?</p>
-<p>{% include image.html alt="CNN Example" max-width="400" file="/my_blog/images/copied_from_nb/images/2021_05_24_cnn_example_1.png" %}</p>
+<p>{% include image.html alt="CNN Example" max-width="400" file="/blog/images/copied_from_nb/images/2021_05_24_cnn_example_1.png" %}</p>
 
 </div>
 </div>
@@ -49,7 +49,7 @@ knowledgegraphs that one develops, and I'd like to show you how.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Often in these cases, one will seek for help from multiple sources to get this answer right. And often, these sources will be correct a certain percentage of the time:</p>
-<p>{% include image.html alt="CNN Example" max-width="400" file="/my_blog/images/copied_from_nb/images/2021_05_24_cnn_example_2.png" %}</p>
+<p>{% include image.html alt="CNN Example" max-width="400" file="/blog/images/copied_from_nb/images/2021_05_24_cnn_example_2.png" %}</p>
 <p>Such a scenario can be common not only in automated scrapers, but even situations such as knowledge graphs, where the "classifier" is actually a human.</p>
 
 </div>
@@ -75,7 +75,7 @@ is right <strong>65%</strong> of the time for correct values.</li>
 anything, it has a False negative rate of <strong>60%</strong> (<strong>60%</strong> of the accounts
 it fails to link it is wrong about).</li>
 </ul>
-<p>{% include image.html alt="CNN Example" max-width="400" file="/my_blog/images/copied_from_nb/images/2021_05_24_cnn_example_3.png" %}</p>
+<p>{% include image.html alt="CNN Example" max-width="400" file="/blog/images/copied_from_nb/images/2021_05_24_cnn_example_3.png" %}</p>
 <p>What would be this combined precision?</p>
 
 </div>

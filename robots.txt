@@ -1,1 +1,1 @@
-Sitemap: https://jrmlhermitte.github.io/my_blog/sitemap.xml
+Sitemap: https://jrmlhermitte.github.io/blog/sitemap.xml

@@ -12,7 +12,7 @@
       "page1": {
           "title": "About Me",
           "content": "Learning begets humility because the more a man knows, the more he discovers his ignorance. Anonymous . This website is powered by fastpages 1. . a blogging platform that natively supports Jupyter notebooks in addition to other formats. &#8617; . |",
-          "url": "https://jrmlhermitte.github.io/my_blog/about/",
+          "url": "https://jrmlhermitte.github.io/blog/about/",
           "relUrl": "/about/",
           "date": ""
       }
@@ -44,7 +44,7 @@
       ,"page10": {
           "title": "",
           "content": "Sitemap: {{ “sitemap.xml” | absolute_url }} | .",
-          "url": "https://jrmlhermitte.github.io/my_blog/robots.txt",
+          "url": "https://jrmlhermitte.github.io/blog/robots.txt",
           "relUrl": "/robots.txt",
           "date": ""
       }

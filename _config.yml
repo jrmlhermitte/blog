@@ -41,6 +41,7 @@ minima:
   social_links:
     # twitter: 
     github: jrmlhermitte 
+    linkedin: julien-lhermitte-6374b77
 
 # Set this to true to get LaTeX math equation support
 use_math: true

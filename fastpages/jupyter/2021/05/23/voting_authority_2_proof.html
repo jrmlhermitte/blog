@@ -93,7 +93,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      4 min read
+      5 min read
     
 </span></p>
 
@@ -139,6 +139,8 @@ window.onload = wrap_img;
 <ul>
 <li class="toc-entry toc-h2"><a href="#Simple-Case:-Two-Authorities-vote-the-same-positive-result">Simple Case: Two Authorities vote the same positive result </a></li>
 <li class="toc-entry toc-h2"><a href="#The-case-where-some-authorities-vote-against-a-link">The case where some authorities vote against a link </a></li>
+<li class="toc-entry toc-h2"><a href="#So-what-does-all-this mean?">So what does all this mean? </a></li>
+<li class="toc-entry toc-h2"><a href="#When-would-this work?">When would this work? </a></li>
 </ul>
 </li>
 </ul><!--
@@ -157,9 +159,8 @@ window.onload = wrap_img;
 <a class="anchor" href="#Proof" aria-hidden="true"><span class="octicon octicon-link"></span></a>Proof<a class="anchor-link" href="#Proof"> </a>
 </h1>
 <p>The previous post mentioned more or less quantitatively the formula:
-$$Pr_{combined} = \frac{\prod_{i \in A_p} Pr_i \prod_{j \notin A_p} FNR_j}
-{\prod_{i \in A_p} Pr_i\prod_{j \notin A_p} FNR_j + \prod_{i \in A_p} (1 - Pr_i) \prod_{j \notin A_p} (1 - FNR_j)}
-$$</p>
+$$Pr_{combined} = \frac{\prod_{i \in \bf{A}^+} Pr_i \prod_{j \notin \bf{A}^+} FNR_j}
+{\prod_{i \in \bf{A}^+} Pr_i\prod_{j \notin \bf{A}^+} FNR_j + \prod_{i \in \bf{A}^+} (1 - Pr_i)\prod_{j \notin \bf{A}^+} (1 - FNR_j)}$$</p>
 <p>Now for the proof.</p>
 <p>One way to think of this is in terms of sets.</p>
 
@@ -175,7 +176,7 @@ $$</p>
 <p>We will first consider the first case where we have only two authorities that vote for the same result. Let's say we have a universe of points $U$ of which some are true (green) and some false (red):
 <figure>
   
-    <img class="docimage" src="/blog/images/copied_from_nb/images/2021_05_16_combined_authority_figa.png" alt="Figure 1" style="max-width: 200px">
+    <img class="docimage" src="/my_blog/images/copied_from_nb/images/2021_05_16_combined_authority_figa.png" alt="Figure 1" style="max-width: 200px">
     
     
 </figure>
@@ -183,7 +184,7 @@ $$</p>
 <p>And within this universe, we have two authorities $A_1$ and $A_2$ which have a subset of points that they decide are true:</p>
 <p><figure>
   
-    <img class="docimage" src="/blog/images/copied_from_nb/images/2021_05_16_combined_authority_figb.png" alt="Figure 2" style="max-width: 200px">
+    <img class="docimage" src="/my_blog/images/copied_from_nb/images/2021_05_16_combined_authority_figb.png" alt="Figure 2" style="max-width: 200px">
     
     
 </figure>
@@ -298,16 +299,29 @@ where $\bar{A}_2 = U - A_2$.</p>
 
 $$FP = (F \cup A_1 \cup \bar{A}_2)$$
 </p>
-<p>Finally, this leads to $P(T | \bar{A}_2) = FNR_{A_2}$.
-I leave it up to the reader to fill in the gaps.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>If you have questions or comments, I would love to hear them!</p>
+<p>Finally, this leads to $P(T | \bar{A}_2) = FNR_{A_2}$.</p>
+<p>You can combine the same ideas to lead to the final result:
+$$Pr_{combined} = \frac{\prod_{i \in \bf{A}^+} Pr_i \prod_{j \notin \bf{A}^+} FNR_j}
+{\prod_{i \in \bf{A}^+} Pr_i\prod_{j \notin \bf{A}^+} FNR_j + \prod_{i \in \bf{A}^+} (1 - Pr_i)\prod_{j \notin \bf{A}^+} (1 - FNR_j)}$$</p>
+<h2 id="So-what-does-all-this mean?">
+<a class="anchor" href="#So-what-does-all-this%C2%A0mean?" aria-hidden="true"><span class="octicon octicon-link"></span></a>So what does all this mean?<a class="anchor-link" href="#So-what-does-all-this%C2%A0mean?"> </a>
+</h2>
+<p>This is a pretty powerful formula. Assuming that each authority is independent, it is possible to compute a combined precision based on their individual precision and false positive rate alone. This means that one may add multiple authorities and score them independently, without ever having to score them together on the same dataset.</p>
+<p>The only requirement is that your classifiers are independent. 
+If you have correlated classifiers (non-independent), you could 
+still compute the combined precision and disregard all formulas 
+in these posts. However, rather than computing $N$ precisions for 
+each of $N$ classifiers and $N$ false negative rates, you will 
+need to compute $2^N$ precision for all combinations of 
+classifiers! So we have effectively reduced the sampling 
+space from $2^N$ to $N$ with this independence assumption.</p>
+<h2 id="When-would-this work?">
+<a class="anchor" href="#When-would-this%C2%A0work?" aria-hidden="true"><span class="octicon octicon-link"></span></a>When would this work?<a class="anchor-link" href="#When-would-this%C2%A0work?"> </a>
+</h2>
+<p>Independence is not often guaranteed, and so one should be careful before choosing this formula.</p>
+<p>This won't work, for example, if you have two cat classifiers based on two slightly different Convolutional Neural Networks (CNN) but trained on the same images. This is because they are based on similar architectures, and so will likely look for the same features (for example, pointy ears and a tail). If they use the same features for their decisions, they are then correlated (and thus not independent).</p>
+<p>This will work, however, when you have authorities or classifiers that are classifying something from independent sources. A good example is the usage of multiple authorities (human labelers) in a knowledge graph.</p>
+<p>Thanks for having stuck through with this all the way, and I hope you enjoyed these posts. If you have questions or comments, I would love to hear them!</p>
 
 </div>
 </div>

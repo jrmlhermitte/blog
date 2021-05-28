@@ -41,7 +41,7 @@ knowledgegraphs that one develops, and I'd like to show you how.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Social-Media-Finder-Example">Social Media Finder Example<a class="anchor-link" href="#Social-Media-Finder-Example"> </a></h2><p>Let's say, for example, you have some hypotheses of potential twitter accounts for a certain domain, <code>cnn.com</code>, one <code>@CNN</code> and the other <code>@JohnDoe</code>. How do you know if they are right or wrong?</p>
-<p>{% include image.html alt="CNN Example" max-width="400" file="/blog/images/copied_from_nb/images/2021_05_24_cnn_example_1.png" %}</p>
+<p>{% include image.html alt="CNN Example" max-width="400" file="/my_blog/images/copied_from_nb/images/2021_05_24_cnn_example_1.png" %}</p>
 
 </div>
 </div>
@@ -49,7 +49,7 @@ knowledgegraphs that one develops, and I'd like to show you how.</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Often in these cases, one will seek for help from multiple sources to get this answer right. And often, these sources will be correct a certain percentage of the time:</p>
-<p>{% include image.html alt="CNN Example" max-width="400" file="/blog/images/copied_from_nb/images/2021_05_24_cnn_example_2.png" %}</p>
+<p>{% include image.html alt="CNN Example" max-width="400" file="/my_blog/images/copied_from_nb/images/2021_05_24_cnn_example_2.png" %}</p>
 <p>Such a scenario can be common not only in automated scrapers, but even situations such as knowledge graphs, where the "classifier" is actually a human.</p>
 
 </div>
@@ -75,7 +75,7 @@ is right <strong>65%</strong> of the time for correct values.</li>
 anything, it has a False negative rate of <strong>60%</strong> (<strong>60%</strong> of the accounts
 it fails to link it is wrong about).</li>
 </ul>
-<p>{% include image.html alt="CNN Example" max-width="400" file="/blog/images/copied_from_nb/images/2021_05_24_cnn_example_3.png" %}</p>
+<p>{% include image.html alt="CNN Example" max-width="400" file="/my_blog/images/copied_from_nb/images/2021_05_24_cnn_example_3.png" %}</p>
 <p>What would be this combined precision?</p>
 
 </div>
@@ -83,12 +83,13 @@ it fails to link it is wrong about).</li>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>I'll jump ahead to the answer, it would actually be:
+<p>To get to this will take a bit of work, and I will walk you through it.</p>
+<p>But to get a feel for what the answer would look like, I will give you a small preview. The answer to this problem should be:
 {% raw %}
 $$.65 * .8 * .6 / (.65 * .8 * .6 + (1-.65)*(1-.8)*(1-.6) \approx 91.8%$$
 {% endraw %}
 That's <strong>91.8%</strong>!!!! That's quite jump in confidence.</p>
-<p>You could code out the general formula as such:</p>
+<p>Before I continue to explain this result, here is the same formula in code:</p>
 
 </div>
 </div>
@@ -165,11 +166,12 @@ That's <strong>91.8%</strong>!!!! That's quite jump in confidence.</p>
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>How do we get to this?
-In order to explain this, I will first go through some definitions
+<p>How do we get to this?</p>
+<p>In order to explain this, I will first go through some definitions
 and give the answer. I will then simulate a simple two system
-classifier to qualitatively validate the assumption.
-The proof will be left for a later post.</p>
+classifier to qualitatively validate the assumption. We will
+then validate whether this formula above is the right solution.</p>
+<p>The proof will be left for a later post.</p>
 
 </div>
 </div>
@@ -197,14 +199,18 @@ likely postive? We also assume here that all
 authorities are <strong>independent</strong>. {% fn 2 %}</p>
 </blockquote>
 <p>It turns out if you make the independence assumption, 
-that there is a very simple answer. Say 
-that authorities belonging to $A$ classified an item as 
-as positive with each precision $Pr_i$ and that authorities
-that belong to $\bar{A}$ did not classify an item as positive
-and each have a false negative rate of $FNR_i$. The combined precision
-would be:$$Pr_{combined} = \frac{\prod_{i \in A_p} Pr_i \prod_{j \notin A_p} FNR_j}{\prod_{i \in A_p} Pr_i\prod_{j \notin A_p} FNR_j + \prod_{i \in A_p} (1 - Pr_i)\prod_{j \notin A_p} (1 - FNR_j)}
-$$</p>
-
+that there is a very simple answer. Say we have a set of authorities.
+For each of these $A_i$, they either classified an item as positive or not.
+Let's say that the set of all authorities that classified an item
+as positive is $\bf{A}^+$. So authorities that classified 
+an item as positive belong to this set:$A_i \in \bf{A}^+$.Conversely, authorities that did not classify an item as positive
+do not belong to $\bf{A}^+$: $A_i \notin \bf{A}^+$.
+For each authority $A_i$, we measure their precision as $PR_i$
+and false negative rate $FNR_i$. Considering this
+notation, the combined precision would be:</p>
+$$Pr_{combined} = \frac{\prod_{i \in \bf{A}^+} Pr_i \prod_{j \notin \bf{A}^+} FNR_j}
+{\prod_{i \in \bf{A}^+} Pr_i\prod_{j \notin \bf{A}^+} FNR_j + \prod_{i \in \bf{A}^+} (1 - Pr_i)\prod_{j \notin \bf{A}^+} (1 - FNR_j)}
+$$
 </div>
 </div>
 </div>
@@ -664,7 +670,7 @@ We choose to keep 200995 of true and false cases.
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now let's compute the precision of A1 and A2 and verify the false positive rate of A3:</p>
+<p>Now let's compute the precision of A1 and A2 and verify the false negative rate of A3:</p>
 
 </div>
 </div>

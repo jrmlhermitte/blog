@@ -25,9 +25,8 @@ layout: notebook
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Proof">Proof<a class="anchor-link" href="#Proof"> </a></h1><p>The previous post mentioned more or less quantitatively the formula:
-$$Pr_{combined} = \frac{\prod_{i \in A_p} Pr_i \prod_{j \notin A_p} FNR_j}
-{\prod_{i \in A_p} Pr_i\prod_{j \notin A_p} FNR_j + \prod_{i \in A_p} (1 - Pr_i) \prod_{j \notin A_p} (1 - FNR_j)}
-$$</p>
+$$Pr_{combined} = \frac{\prod_{i \in \bf{A}^+} Pr_i \prod_{j \notin \bf{A}^+} FNR_j}
+{\prod_{i \in \bf{A}^+} Pr_i\prod_{j \notin \bf{A}^+} FNR_j + \prod_{i \in \bf{A}^+} (1 - Pr_i)\prod_{j \notin \bf{A}^+} (1 - FNR_j)}$$</p>
 <p>Now for the proof.</p>
 <p>One way to think of this is in terms of sets.</p>
 
@@ -37,9 +36,9 @@ $$</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Simple-Case:-Two-Authorities-vote-the-same-positive-result">Simple Case: Two Authorities vote the same positive result<a class="anchor-link" href="#Simple-Case:-Two-Authorities-vote-the-same-positive-result"> </a></h2><p>We will first consider the first case where we have only two authorities that vote for the same result. Let's say we have a universe of points $U$ of which some are true (green) and some false (red):
-{% include image.html alt="Figure 1" max-width="200" file="/blog/images/copied_from_nb/images/2021_05_16_combined_authority_figa.png" %}</p>
+{% include image.html alt="Figure 1" max-width="200" file="/my_blog/images/copied_from_nb/images/2021_05_16_combined_authority_figa.png" %}</p>
 <p>And within this universe, we have two authorities $A_1$ and $A_2$ which have a subset of points that they decide are true:</p>
-<p>{% include image.html alt="Figure 2" max-width="200" file="/blog/images/copied_from_nb/images/2021_05_16_combined_authority_figb.png" %}</p>
+<p>{% include image.html alt="Figure 2" max-width="200" file="/my_blog/images/copied_from_nb/images/2021_05_16_combined_authority_figb.png" %}</p>
 <p>Here, the points that $A_1$ believes are true are denoted by the blue circle and the points that $A_2$ believes to be true are denoted by the purple circle. So points that $A_1$ and $A_2$ to both believe to be true would be represented by the overlap.</p>
 <p>It should be noted that here, without loss of generality, we assume the points are arranged in such a way so that we may draw such a picture. Points that both $A_1$ and $A_2$ believe to be true that is also true are grouped close together as are the ones where $A_1$ and $A_2$ believe to be true but are in fact not true etc etc.</p>
 <p>This image is not needed for the actual proof, but I think it helps give a better picture of what is going on.</p>
@@ -143,15 +142,23 @@ where $\bar{A}_2 = U - A_2$.</p>
 {% raw %}
 $$FP = (F \cup A_1 \cup \bar{A}_2)$$
 {% endraw %}</p>
-<p>Finally, this leads to $P(T | \bar{A}_2) = FNR_{A_2}$.
-I leave it up to the reader to fill in the gaps.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>If you have questions or comments, I would love to hear them!</p>
+<p>Finally, this leads to $P(T | \bar{A}_2) = FNR_{A_2}$.</p>
+<p>You can combine the same ideas to lead to the final result:
+$$Pr_{combined} = \frac{\prod_{i \in \bf{A}^+} Pr_i \prod_{j \notin \bf{A}^+} FNR_j}
+{\prod_{i \in \bf{A}^+} Pr_i\prod_{j \notin \bf{A}^+} FNR_j + \prod_{i \in \bf{A}^+} (1 - Pr_i)\prod_{j \notin \bf{A}^+} (1 - FNR_j)}$$</p>
+<h2 id="So-what-does-all-this&#160;mean?">So what does all this&#160;mean?<a class="anchor-link" href="#So-what-does-all-this&#160;mean?"> </a></h2><p>This is a pretty powerful formula. Assuming that each authority is independent, it is possible to compute a combined precision based on their individual precision and false positive rate alone. This means that one may add multiple authorities and score them independently, without ever having to score them together on the same dataset.</p>
+<p>The only requirement is that your classifiers are independent. 
+If you have correlated classifiers (non-independent), you could 
+still compute the combined precision and disregard all formulas 
+in these posts. However, rather than computing $N$ precisions for 
+each of $N$ classifiers and $N$ false negative rates, you will 
+need to compute $2^N$ precision for all combinations of 
+classifiers! So we have effectively reduced the sampling 
+space from $2^N$ to $N$ with this independence assumption.</p>
+<h2 id="When-would-this&#160;work?">When would this&#160;work?<a class="anchor-link" href="#When-would-this&#160;work?"> </a></h2><p>Independence is not often guaranteed, and so one should be careful before choosing this formula.</p>
+<p>This won't work, for example, if you have two cat classifiers based on two slightly different Convolutional Neural Networks (CNN) but trained on the same images. This is because they are based on similar architectures, and so will likely look for the same features (for example, pointy ears and a tail). If they use the same features for their decisions, they are then correlated (and thus not independent).</p>
+<p>This will work, however, when you have authorities or classifiers that are classifying something from independent sources. A good example is the usage of multiple authorities (human labelers) in a knowledge graph.</p>
+<p>Thanks for having stuck through with this all the way, and I hope you enjoyed these posts. If you have questions or comments, I would love to hear them!</p>
 
 </div>
 </div>

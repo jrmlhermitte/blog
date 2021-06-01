@@ -884,8 +884,8 @@ to use random downsampling."
 true. A good example is two cat classifiers trained on the same
 pretrained network but with different parameters. In this case,
 these will not be independent because they will likely start with
-the same initial features (i.e. given classifier "A" predicts that
-the image is a cat because it has a tail and tall ears, classifier "B"
+the same initial features (i.e. given classifier A predicts that
+the image is a cat because it has a tail and tall ears, classifier B
 will probably also likely classify it as a cat). However, the case of web
 scraping will often be independent enough. A good example is something
 that looks for article titles from different metadata, say the <code>&lt;title&gt;</code>

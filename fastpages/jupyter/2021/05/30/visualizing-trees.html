@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Looking for Summer Shade | Julien Lhermitte’s Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Looking for Summer Shade" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This blog post walks through how to deal with Bigquery GIS data by looking for regions in New York City with the most shade." />
+<meta property="og:description" content="This blog post walks through how to deal with Bigquery GIS data by looking for regions in New York City with the most shade." />
+<link rel="canonical" href="https://jrmlhermitte.github.io/blog/fastpages/jupyter/2021/05/30/visualizing-trees.html" />
+<meta property="og:url" content="https://jrmlhermitte.github.io/blog/fastpages/jupyter/2021/05/30/visualizing-trees.html" />
+<meta property="og:site_name" content="Julien Lhermitte’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-05-30T00:00:00-05:00" />
+<script type="application/ld+json">
+{"url":"https://jrmlhermitte.github.io/blog/fastpages/jupyter/2021/05/30/visualizing-trees.html","@type":"BlogPosting","headline":"Looking for Summer Shade","dateModified":"2021-05-30T00:00:00-05:00","datePublished":"2021-05-30T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://jrmlhermitte.github.io/blog/fastpages/jupyter/2021/05/30/visualizing-trees.html"},"description":"This blog post walks through how to deal with Bigquery GIS data by looking for regions in New York City with the most shade.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://jrmlhermitte.github.io/blog/feed.xml" title="Julien Lhermitte's Blog" /><link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Julien Lhermitte&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/publications/">Select Publications</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Looking for Summer Shade</h1><p class="page-description">This blog post walks through how to deal with Bigquery GIS data by looking for regions in New York City with the most shade.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-05-30T00:00:00-05:00" itemprop="datePublished">
+        May 30, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      15 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#fastpages">fastpages</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#jupyter">jupyter</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/jrmlhermitte/blog/tree/master/_notebooks/2021-05-30-visualizing-trees.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/jrmlhermitte/blog/master?filepath=_notebooks%2F2021-05-30-visualizing-trees.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/jrmlhermitte/blog/blob/master/_notebooks/2021-05-30-visualizing-trees.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#Part-I:-Getting-the-data-in-bigquery">Part I: Getting the data in bigquery </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#The-datasets">The datasets </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#New-York-street-trees">New York street trees </a></li>
+<li class="toc-entry toc-h3"><a href="#US-Census-Boundaries">US Census Boundaries </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Bigquery:-The-pandas-API">Bigquery: The pandas API </a></li>
+<li class="toc-entry toc-h2"><a href="#Setup:-Import-packages-and-extensions">Setup: Import packages and extensions </a></li>
+<li class="toc-entry toc-h2"><a href="#Query-bigquery-for-relevant-zip-codes">Query bigquery for relevant zip codes </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Aside:-Vizualizing-using-GeoViz">Aside: Vizualizing using GeoViz </a></li>
+<li class="toc-entry toc-h3"><a href="#The-bigquery-query-for-trees">The bigquery query for trees </a></li>
+<li class="toc-entry toc-h3"><a href="#What-just-happened-here?">What just happened here? </a></li>
+<li class="toc-entry toc-h3"><a href="#Putting-it-all-together">Putting it all together </a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Part-3:-Computing-the-shadiness-per-zip-code">Part 3: Computing the shadiness per zip code </a></li>
+<li class="toc-entry toc-h1"><a href="#Part-4:-Vizualization">Part 4: Vizualization </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Exploring-the-zip-code-shapes">Exploring the zip code shapes </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Converting-from-a-shapely-geometry-to-geojson">Converting from a shapely geometry to geojson </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Part-2:-plotting-with-plotly">Part 2: plotting with plotly </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Some-Observations">Some Observations </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Why-are-there-missing-regions?">Why are there missing regions? </a></li>
+<li class="toc-entry toc-h2"><a href="#Are-trees-from-Central-Park-being-counted-in-the-regions-with-highest-tree-per-surface-area?">Are trees from Central Park being counted in the regions with highest tree per surface area? </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Conclusion">Conclusion </a></li>
+<li class="toc-entry toc-h1"><a href="#Next-Steps">Next Steps </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-05-30-visualizing-trees.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Bigquery has a lot of public datasets available.
+Not only is there a vast number of datasets available,
+but cross referencing them and accessing them is free (up 
+until a limit)!</p>
+<p>The purpose of this blog post is show how easy this is.
+In this blog post, I will walk you through the New York tree dataset
+and the US Census zip code geometry dataset to show you how to 
+compute how likely a region is to have shade, making it a nicer 
+candidate for a stroll on a hot summer day.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Part-I:-Getting-the-data-in-bigquery">
+<a class="anchor" href="#Part-I:-Getting-the-data-in-bigquery" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part I: Getting the data in bigquery<a class="anchor-link" href="#Part-I:-Getting-the-data-in-bigquery"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Getting the data is fairly easy. Google has documentation <a href="https://cloud.google.com/bigquery/docs/quickstarts/quickstart-web-ui">here</a>.
+It is assumed that you have already created a google cloud account.
+But if you did not, I hope this motivates you to give it a try!</p>
+<h2 id="The-datasets">
+<a class="anchor" href="#The-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>The datasets<a class="anchor-link" href="#The-datasets"> </a>
+</h2>
+<p>For this demo, I will be looking at two datasets:</p>
+<h3 id="New-York-street-trees">
+<a class="anchor" href="#New-York-street-trees" aria-hidden="true"><span class="octicon octicon-link"></span></a>New York street trees<a class="anchor-link" href="#New-York-street-trees"> </a>
+</h3>
+<p>We will be looking at data gathered from the 2015 tree census.
+You may find it <a href="https://console.cloud.google.com/marketplace/product/city-of-new-york/nyc-tree-census">here</a></p>
+<h3 id="US-Census-Boundaries">
+<a class="anchor" href="#US-Census-Boundaries" aria-hidden="true"><span class="octicon octicon-link"></span></a>US Census Boundaries<a class="anchor-link" href="#US-Census-Boundaries"> </a>
+</h3>
+<p>When looking at the data, we will segment it by some sort of boundary for easier visualization.
+We could use tiling approaches, but it will be fun to use existing data. 
+Let's try the zip code 
+<a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html">tabulation areas</a>.
+You may find the us census boundaries dataset
+<a href="https://console.cloud.google.com/marketplace/product/united-states-census-bureau/us-geographic-boundaries">here</a></p>
+<h2 id="Bigquery:-The-pandas-API">
+<a class="anchor" href="#Bigquery:-The-pandas-API" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bigquery: The pandas API<a class="anchor-link" href="#Bigquery:-The-pandas-API"> </a>
+</h2>
+<p>These datasets are actually pretty small to download and work with offline.
+But since this data is offered publicly in bigquery, and bigquery offers up to 
+2TB of queries free per month (here we'll be running about 12 GB of queries),
+it is well worth leveraging. On top of this, some of the queries we need to make
+will involve geospatial joins. It will be much easier to let bigquery handle this.</p>
+<p>The queries that will be presented could just be run in the UI <a href="https://console.cloud.google.com/bigquery">here</a>. However, for convenience,
+they will be run in a jupyter notebook.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Setup:-Import-packages-and-extensions">
+<a class="anchor" href="#Setup:-Import-packages-and-extensions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup: Import packages and extensions<a class="anchor-link" href="#Setup:-Import-packages-and-extensions"> </a>
+</h2>
+<p>We'll be using a few packages along the way.
+I'll leave comments for what each is for.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">geojson</span>
+<span class="c1"># For plotting</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="c1"># For filtering some of the tabular data we will generate</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="c1"># For converting shapes</span>
+<span class="kn">import</span> <span class="nn">shapely</span>
+<span class="c1"># For converting shape information output as text from bigquery</span>
+<span class="kn">import</span> <span class="nn">shapely.wkt</span>
+
+<span class="c1"># Used to send bigquery queries.</span>
+<span class="o">%</span><span class="k">load_ext</span> google.cloud.bigquery
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Query-bigquery-for-relevant-zip-codes">
+<a class="anchor" href="#Query-bigquery-for-relevant-zip-codes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Query bigquery for relevant zip codes<a class="anchor-link" href="#Query-bigquery-for-relevant-zip-codes"> </a>
+</h2>
+<p>We will be using zip codes to visualize boundaries.</p>
+<p>Here is the query:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">bigquery</span> df_zip_codes --use_bqstorage_api
+
+WITH 
+zip_codes AS (
+    SELECT 
+        # The zip code
+        zip_code,
+        # The place name (mainly useful for plotting)
+        city,
+        # The boundary of the zip code (for plotting)
+        zip_code_geom ,
+        # Some internal point in the zip code
+        internal_point_geom, 
+        # We compute the surface aread of a zip code. We will need this later.
+        ST_AREA(zip_code_geom) * 1e-6 AS surface_area_km2
+    FROM `bigquery-public-data.geo_us_boundaries.zip_codes`
+    # We filter only for new york zip codes
+    WHERE state_code = 'NY'
+),
+# The last two temporary tables are used to further filter down our zip
+# codes. These last two are not necessary and can be ignore as we will be 
+# filtering the data at a further step. However, it helps to perform filtering
+# like this earlier on if possible when we're certain that we won't need the data.
+new_york_area AS (
+    SELECT * FROM `bigquery-public-data.geo_us_boundaries.urban_areas`
+    WHERE REGEXP_CONTAINS(LOWER(name), '.*new york.*')
+),
+new_york_zip_codes AS (
+    SELECT 
+        zip_code,
+        city,
+        zip_code_geom,
+        surface_area_km2
+    FROM zip_codes AS z
+    JOIN new_york_area AS n
+    ON ST_CONTAINS(n.urban_area_geom, z.internal_point_geom)
+)
+
+
+# I like to keep my final query simple. Sometimes
+# queries can grow, and factoring queries into temporary
+# tables helps better manage them.
+SELECT * FROM new_york_zip_codes
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Query complete after 0.01s: 100%|██████████| 1/1 [00:00&lt;00:00, 978.15query/s] 
+Downloading: 100%|██████████| 441/441 [00:02&lt;00:00, 193.66rows/s]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We now have all new york zip codes.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_zip_codes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>zip_code</th>
+      <th>city</th>
+      <th>zip_code_geom</th>
+      <th>surface_area_km2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>11955</td>
+      <td>Center Moriches CDP, Moriches CDP, Manorville CDP</td>
+      <td>POLYGON((-72.839904 40.818861, -72.839687 40.8...</td>
+      <td>8.010525</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>11789</td>
+      <td>Sound Beach CDP, Rocky Point CDP</td>
+      <td>POLYGON((-72.987006 40.955116, -72.986997 40.9...</td>
+      <td>6.782860</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>11717</td>
+      <td>Central Islip CDP, North Bay Shore CDP, Brentw...</td>
+      <td>POLYGON((-73.295162 40.769269, -73.295162 40.7...</td>
+      <td>28.214786</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11755</td>
+      <td>Lake Grove village, St. James CDP, Lake Ronkon...</td>
+      <td>POLYGON((-73.136194 40.865864, -73.136146 40.8...</td>
+      <td>8.399816</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>11946</td>
+      <td>Flanders CDP, Shinnecock Hills CDP, Hampton Ba...</td>
+      <td>MULTIPOLYGON(((-72.540743 40.815076, -72.54076...</td>
+      <td>40.879001</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>436</th>
+      <td>10601</td>
+      <td>White Plains city</td>
+      <td>POLYGON((-73.776398 41.032189, -73.776393 41.0...</td>
+      <td>1.640223</td>
+    </tr>
+    <tr>
+      <th>437</th>
+      <td>10706</td>
+      <td>Yonkers city, Hastings-on-Hudson village</td>
+      <td>POLYGON((-73.888685 40.976827, -73.888824 40.9...</td>
+      <td>7.485093</td>
+    </tr>
+    <tr>
+      <th>438</th>
+      <td>10701</td>
+      <td>Yonkers city, Hastings-on-Hudson village</td>
+      <td>MULTIPOLYGON(((-73.908934 40.91852, -73.908942...</td>
+      <td>10.967166</td>
+    </tr>
+    <tr>
+      <th>439</th>
+      <td>10580</td>
+      <td>Mamaroneck village, Rye city, Harrison village</td>
+      <td>MULTIPOLYGON(((-73.696873 40.951398, -73.69647...</td>
+      <td>23.010001</td>
+    </tr>
+    <tr>
+      <th>440</th>
+      <td>10528</td>
+      <td>Mamaroneck village, Rye city, Harrison village</td>
+      <td>POLYGON((-73.744747 40.980429, -73.744747 40.9...</td>
+      <td>9.901827</td>
+    </tr>
+  </tbody>
+</table>
+<p>441 rows × 4 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Aside:-Vizualizing-using-GeoViz">
+<a class="anchor" href="#Aside:-Vizualizing-using-GeoViz" aria-hidden="true"><span class="octicon octicon-link"></span></a>Aside: Vizualizing using GeoViz<a class="anchor-link" href="#Aside:-Vizualizing-using-GeoViz"> </a>
+</h3>
+<p>Note that when exploring this data, you can leverage a free visualization tool
+in bigquery called geoviz. For example, you can run this query to select all new 
+york zip codes:
+<figure>
+  
+    <img class="docimage" src="/blog/images/copied_from_nb/images/2021-05-30-click-geoviz-example.png" alt="BigQuery UI" style="max-width: 600px">
+    
+    
+</figure>
+</p>
+<p>and click "Explore with GeoViz" to explore it:
+<figure>
+  
+    <img class="docimage" src="/blog/images/copied_from_nb/images/2021-05-30-geoviz-example.png" alt="BigQuery UI" style="max-width: 600px">
+    
+    
+</figure>
+</p>
+<p>The purpose of this blog is not to go through these details but I thought
+I would highlight this useful feature.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-bigquery-query-for-trees">
+<a class="anchor" href="#The-bigquery-query-for-trees" aria-hidden="true"><span class="octicon octicon-link"></span></a>The bigquery query for trees<a class="anchor-link" href="#The-bigquery-query-for-trees"> </a>
+</h3>
+<p>We will not query the new york trees census.</p>
+<p>Since our goal is to understand how each zip code is doing, we will also join
+it will information from the same zip codes table we used previously.</p>
+<p>I will present the query involved here and explain it afterwards.
+Don't worry if some pieces don't seem to make sense yet.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">bigquery</span> df_trees --use_bqstorage_api
+
+# This is the tree table. We generate it from the 2015 tree 
+# census and join it with the tree species table to join additional
+# inforamtio
+WITH trees AS (
+SELECT 
+    ts.species_common_name,
+    ST_GEOGPOINT(tc.longitude, tc.latitude) as center,  
+    FROM `bigquery-public-data.new_york_trees.tree_census_2015` as tc 
+    LEFT JOIN `bigquery-public-data`.new_york.tree_species as ts
+    ON LOWER(tc.spc_common) = LOWER(ts.species_common_name)
+    WHERE tc.status = 'Alive'
+    AND STARTS_WITH(ts.tree_size, 'Large')
+),
+# For zip codes, we only need the zip code and boundaries
+zip_codes AS (
+    SELECT zip_code, zip_code_geom
+    FROM `bigquery-public-data.geo_us_boundaries.zip_codes`
+)
+
+# We perform a spatial join. 
+# For every tree that is in a zip code, we will create one row
+# with the zip code and tree information.
+SELECT z.zip_code, t.* FROM trees AS t
+JOIN zip_codes AS z
+ON ST_CONTAINS(z.zip_code_geom, t.center)
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Query complete after 0.00s: 100%|██████████| 1/1 [00:00&lt;00:00, 595.11query/s] 
+Downloading: 100%|██████████| 275822/275822 [00:02&lt;00:00, 115375.49rows/s]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="What-just-happened-here?">
+<a class="anchor" href="#What-just-happened-here?" aria-hidden="true"><span class="octicon octicon-link"></span></a>What just happened here?<a class="anchor-link" href="#What-just-happened-here?"> </a>
+</h3>
+<p>There are a few things going on in this query which I have not explained.
+I will now explain them in detail.</p>
+<p>We know we want the geographical distribution of trees, so we have to include
+this in our query to start:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span> 
+    <span class="n">ST_GEOGPOINT</span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">longitude</span><span class="p">,</span> <span class="n">tc</span><span class="p">.</span><span class="n">latitude</span><span class="p">)</span> <span class="k">as</span> <span class="n">center</span><span class="p">,</span>  
+    <span class="k">FROM</span> <span class="o">`</span><span class="n">bigquery</span><span class="o">-</span><span class="k">public</span><span class="o">-</span><span class="k">data</span><span class="p">.</span><span class="n">new_york_trees</span><span class="p">.</span><span class="n">tree_census_2015</span><span class="o">`</span> <span class="k">as</span> <span class="n">tc</span> 
+    <span class="k">WHERE</span> <span class="n">tc</span><span class="p">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">'Alive'</span>
+</pre></div>
+<p>Here, <code>status</code> is an indicator of the tree health and <code>center</code> is it's location
+as a <code>GEOGRAPHY</code> data type (this is the general umbrella data type for any
+geospatial related data. See <a href="https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions">here</a> for documentation).
+Because this dataset includes dead trees, and we only care about shade, we use the <code>status</code> 
+field to filter down this dataset to live trees.</p>
+<p>Since we want to know how much shade a region will be, we need to know a bit more
+about the trees. The tree census table does not contain much information about 
+the trees themselves. However, there is another table, <code>tree_species</code> which does.
+We can use the <code>tree_size</code> property to tell us how big a tree is. If you explore
+the possible values, you will see that the posible values are:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">bigquery</span> df_tree_sizes --use_bqstorage_api
+
+SELECT tree_size, COUNT(*) AS count
+FROM `bigquery-public-data`.new_york.tree_species 
+GROUP BY tree_size
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Query complete after 0.00s: 100%|██████████| 1/1 [00:00&lt;00:00, 586.62query/s] 
+Downloading: 100%|██████████| 4/4 [00:01&lt;00:00,  2.64rows/s]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_tree_sizes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>tree_size</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Large (Mature Height &gt; 50 ft)</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Small (Mature Height &lt; 25 ft)</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Medium (Mature Height 35-50 ft)</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Intermediate (Mature Height 25-35 ft)</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have 23 tree species that are Large, 11 Medium, 5 intermediate and 18 that are small.
+Since we really care about shade, and generally the largest trees provide the most shade,
+let's filter this data set down to the large trees.
+We can filter these rows out by just choosing the trees whose size
+attribute starts with 'Large'.</p>
+<h3 id="Putting-it-all-together">
+<a class="anchor" href="#Putting-it-all-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Putting it all together<a class="anchor-link" href="#Putting-it-all-together"> </a>
+</h3>
+<p>We have in one table, a list of trees with their locations and in 
+another table, a list of tree species we care about.
+We can join these two together by the species name.
+It turns out that in one table, the name has case whereas the other does not,
+so we'll have to process the species name a bit:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span>
+    <span class="k">FROM</span> <span class="o">`</span><span class="n">bigquery</span><span class="o">-</span><span class="k">public</span><span class="o">-</span><span class="k">data</span><span class="p">.</span><span class="n">new_york_trees</span><span class="p">.</span><span class="n">tree_census_2015</span><span class="o">`</span> <span class="k">as</span> <span class="n">tc</span> 
+    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="o">`</span><span class="n">bigquery</span><span class="o">-</span><span class="k">public</span><span class="o">-</span><span class="k">data</span><span class="o">`</span><span class="p">.</span><span class="n">new_york</span><span class="p">.</span><span class="n">tree_species</span> <span class="k">as</span> <span class="n">ts</span>
+    <span class="k">ON</span> <span class="k">LOWER</span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">spc_common</span><span class="p">)</span> <span class="o">=</span> <span class="k">LOWER</span><span class="p">(</span><span class="n">ts</span><span class="p">.</span><span class="n">species_common_name</span><span class="p">)</span>
+</pre></div>
+<p>The <code>FROM</code> line contains the tree census table (which we alias to <code>tc</code>).
+The <code>LEFT JOIN</code> line contains the tree species table that we want to join
+on (aliased to <code>ts</code>) and the <code>ON</code> line contains the condition we want
+to join on: <code>LOWER(tc.spc_common) = LOWER(ts.species_common_name)</code>.
+The final query ends up being:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span> 
+    <span class="n">ts</span><span class="p">.</span><span class="n">species_common_name</span><span class="p">,</span>
+    <span class="n">ST_GEOGPOINT</span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">longitude</span><span class="p">,</span> <span class="n">tc</span><span class="p">.</span><span class="n">latitude</span><span class="p">)</span> <span class="k">as</span> <span class="n">center</span><span class="p">,</span>  
+    <span class="k">FROM</span> <span class="o">`</span><span class="n">bigquery</span><span class="o">-</span><span class="k">public</span><span class="o">-</span><span class="k">data</span><span class="p">.</span><span class="n">new_york_trees</span><span class="p">.</span><span class="n">tree_census_2015</span><span class="o">`</span> <span class="k">as</span> <span class="n">tc</span> 
+    <span class="k">LEFT</span> <span class="k">JOIN</span> <span class="o">`</span><span class="n">bigquery</span><span class="o">-</span><span class="k">public</span><span class="o">-</span><span class="k">data</span><span class="o">`</span><span class="p">.</span><span class="n">new_york</span><span class="p">.</span><span class="n">tree_species</span> <span class="k">as</span> <span class="n">ts</span>
+    <span class="k">ON</span> <span class="k">LOWER</span><span class="p">(</span><span class="n">tc</span><span class="p">.</span><span class="n">spc_common</span><span class="p">)</span> <span class="o">=</span> <span class="k">LOWER</span><span class="p">(</span><span class="n">ts</span><span class="p">.</span><span class="n">species_common_name</span><span class="p">)</span>
+    <span class="k">WHERE</span> <span class="n">tc</span><span class="p">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">'Alive'</span>
+    <span class="k">AND</span> <span class="n">STARTS_WITH</span><span class="p">(</span><span class="n">ts</span><span class="p">.</span><span class="n">tree_size</span><span class="p">,</span> <span class="s1">'Large'</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+<p>Finally, we join this data with zip code data so that we can tag
+a zip code to the trees, again through a geospatial join:</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">z</span><span class="p">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="o">*</span> <span class="k">FROM</span> <span class="n">trees</span> <span class="k">AS</span> <span class="n">t</span>
+    <span class="k">JOIN</span> <span class="n">zip_codes</span> <span class="k">AS</span> <span class="n">z</span>
+    <span class="k">ON</span> <span class="n">ST_CONTAINS</span><span class="p">(</span><span class="n">z</span><span class="p">.</span><span class="n">zip_code_geom</span><span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="n">center</span><span class="p">)</span>
+</pre></div>
+<p>and we're done!</p>
+<p>How many trees do we end up with?
+We get 275822. New York has quite a few trees:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_trees</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>zip_code</th>
+      <th>species_common_name</th>
+      <th>center</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>11106</td>
+      <td>Shingle Oak</td>
+      <td>POINT(-73.92839366 40.76088873)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>11428</td>
+      <td>White Ash</td>
+      <td>POINT(-73.752901 40.71995185)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10452</td>
+      <td>White Ash</td>
+      <td>POINT(-73.92219751 40.83795482)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11413</td>
+      <td>Shingle Oak</td>
+      <td>POINT(-73.75865478 40.66516833)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>11209</td>
+      <td>White Ash</td>
+      <td>POINT(-74.04092309 40.62347333)</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>275817</th>
+      <td>10461</td>
+      <td>Littleleaf Linden</td>
+      <td>POINT(-73.85256967 40.84603874)</td>
+    </tr>
+    <tr>
+      <th>275818</th>
+      <td>10461</td>
+      <td>Littleleaf Linden</td>
+      <td>POINT(-73.85053657 40.85204694)</td>
+    </tr>
+    <tr>
+      <th>275819</th>
+      <td>10461</td>
+      <td>Littleleaf Linden</td>
+      <td>POINT(-73.84115012 40.8568)</td>
+    </tr>
+    <tr>
+      <th>275820</th>
+      <td>10461</td>
+      <td>Littleleaf Linden</td>
+      <td>POINT(-73.83248666 40.84078862)</td>
+    </tr>
+    <tr>
+      <th>275821</th>
+      <td>10461</td>
+      <td>Littleleaf Linden</td>
+      <td>POINT(-73.83723661 40.84214104)</td>
+    </tr>
+  </tbody>
+</table>
+<p>275822 rows × 3 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Part-3:-Computing-the-shadiness-per-zip-code">
+<a class="anchor" href="#Part-3:-Computing-the-shadiness-per-zip-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 3: Computing the shadiness per zip code<a class="anchor-link" href="#Part-3:-Computing-the-shadiness-per-zip-code"> </a>
+</h1>
+<p>Finally, we are interested in the shadiness of a zip code.
+How will we determine this?</p>
+<p>We can calculate it by just taking the number of trees in a given
+zip code and divide it by the surface area of the zip code.
+We'll do this bit in python, although it would certainly have been
+just as easy to run it in bigquery:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># where the 'count' colum is 1 for all rows</span>
+<span class="n">df_t</span> <span class="o">=</span> <span class="n">df_trees</span><span class="p">[[</span><span class="s1">'zip_code'</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1"># We now sum count for each zip code. This gives us the number</span>
+<span class="c1"># of trees per zip code.</span>
+<span class="n">df_per_zip</span> <span class="o">=</span> <span class="n">df_t</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'zip_code'</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="c1"># Finally, we need the surface area. We get it by joining the</span>
+<span class="c1"># zip codes table we created earlier:</span>
+<span class="n">df_per_zip</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+    <span class="n">df_per_zip</span><span class="p">,</span> 
+    <span class="n">df_zip_codes</span><span class="p">[[</span><span class="s1">'zip_code'</span><span class="p">,</span> <span class="s1">'surface_area_km2'</span><span class="p">]],</span>
+    <span class="n">on</span><span class="o">=</span><span class="s1">'zip_code'</span><span class="p">,</span>
+    <span class="n">how</span><span class="o">=</span><span class="s1">'left'</span>
+<span class="p">)</span>
+<span class="c1"># And finally, we compute the count per km^2</span>
+<span class="n">df_per_zip</span><span class="p">[</span><span class="s1">'count_per_km2'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_per_zip</span><span class="p">[</span><span class="s1">'count'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_per_zip</span><span class="p">[</span><span class="s1">'surface_area_km2'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Part-4:-Vizualization">
+<a class="anchor" href="#Part-4:-Vizualization" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 4: Vizualization<a class="anchor-link" href="#Part-4:-Vizualization"> </a>
+</h1>
+<p>We now want to visualize this data somehow. 
+We're going to make a choropleth plot using
+<a href="https://plotly.com/python/choropleth-maps/">plotly</a>.
+If you haven't heard of it, plotly is an amazing interactive
+visualization library using javascript. It is extremely easy to
+use and generates professional looking interative graphs
+that can be used to give a little more life to your presentations.</p>
+<h2 id="Exploring-the-zip-code-shapes">
+<a class="anchor" href="#Exploring-the-zip-code-shapes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exploring the zip code shapes<a class="anchor-link" href="#Exploring-the-zip-code-shapes"> </a>
+</h2>
+<p>First, let's explore the zip code shapes. Our zip codes table actually contains
+the bounding boxes of our zip codes in well known text (WKT) format.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Let's graph one row</span>
+<span class="n">row</span> <span class="o">=</span> <span class="n">df_zip_codes</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">geom_wkt</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'zip_code_geom'</span><span class="p">]</span>
+<span class="n">geom_shapely</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">wkt</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">geom_wkt</span><span class="p">)</span>
+<span class="c1"># just print the geometry</span>
+<span class="n">geom_shapely</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_svg output_subarea output_execute_result">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100.0" height="100.0" viewbox="-72.84149836 40.78217264 0.0421857200000062 0.043047719999997014" preserveaspectratio="xMinYMin meet"><g transform="matrix(1,0,0,-1,0,81.607393)"><path fill-rule="evenodd" fill="#66cc99" stroke="#555555" stroke-width="0.0008609543999999403" opacity="0.6" d="M -72.839904,40.818861 L -72.839687,40.81876 L -72.839638,40.818707 L -72.839442,40.818495 L -72.838796,40.817795 L -72.838376,40.816692 L -72.838168,40.815746 L -72.837438,40.815285 L -72.836842,40.814258 L -72.836888,40.813537 L -72.836606,40.812771 L -72.836697,40.812435 L -72.836026,40.811474 L -72.835898,40.810866 L -72.83575,40.810386 L -72.835524,40.809766 L -72.834983,40.808192 L -72.83449,40.807515 L -72.833967,40.807133 L -72.833617,40.806784 L -72.83318,40.80645 L -72.833111,40.806328 L -72.832891,40.806083 L -72.832745,40.80579 L -72.832669,40.804957 L -72.832415,40.803941 L -72.83222,40.803527 L -72.831959,40.803075 L -72.831578,40.802672 L -72.831548,40.802605 L -72.831387,40.802357 L -72.829434,40.794531 L -72.826668,40.791688 L -72.826269,40.791277 L -72.823628,40.78856 L -72.823103,40.788022 L -72.81929,40.784103 L -72.818963,40.783767 L -72.818895,40.783882 L -72.818283,40.784942 L -72.818199,40.785087 L -72.818076,40.785299 L -72.817493,40.78656 L -72.817134,40.787837 L -72.816929,40.788568 L -72.816595,40.79021 L -72.816009,40.791858 L -72.816002,40.792159 L -72.816822,40.793361 L -72.816927,40.793716 L -72.816919,40.793936 L -72.816411,40.796394 L -72.815963,40.797559 L -72.815652,40.797838 L -72.814699,40.798852 L -72.814491,40.799077 L -72.814076,40.799537 L -72.812943,40.80102 L -72.812817,40.801289 L -72.812549,40.801861 L -72.811982,40.801801 L -72.810547,40.803289 L -72.810637,40.803523 L -72.81065,40.803558 L -72.810683,40.803641 L -72.810682,40.803945 L -72.810762,40.804222 L -72.81078,40.804283 L -72.810406,40.804272 L -72.810363,40.804227 L -72.810004,40.803851 L -72.810008,40.803949 L -72.809959,40.804022 L -72.809709,40.804147 L -72.809598,40.804183 L -72.809069,40.804215 L -72.808991,40.804245 L -72.808847,40.804302 L -72.808513,40.804304 L -72.808434,40.804277 L -72.807303,40.804312 L -72.804003,40.80434 L -72.803181,40.804389 L -72.802669,40.804413 L -72.802258,40.804478 L -72.800907,40.804642 L -72.801028,40.805874 L -72.80122,40.80804 L -72.801394,40.809532 L -72.802038,40.815495 L -72.802144,40.816476 L -72.80216,40.816629 L -72.802463,40.819431 L -72.80311,40.819731 L -72.803745,40.820026 L -72.804341,40.820242 L -72.80508,40.82051 L -72.80653,40.821233 L -72.806723,40.821332 L -72.806782,40.821386 L -72.807635,40.821823 L -72.807971,40.822024 L -72.808158,40.822165 L -72.808322,40.822308 L -72.808588,40.82259 L -72.808824,40.822921 L -72.808835,40.82294 L -72.808898,40.823045 L -72.808966,40.823183 L -72.809086,40.823178 L -72.810147,40.823138 L -72.811133,40.82309 L -72.812521,40.823007 L -72.815423,40.822783 L -72.815657,40.822766 L -72.815745,40.823144 L -72.815842,40.823626 L -72.817074,40.823525 L -72.820932,40.823057 L -72.826584,40.822686 L -72.827229,40.822848 L -72.827535,40.822815 L -72.827854,40.822761 L -72.828137,40.822727 L -72.828329,40.8227 L -72.828412,40.82262 L -72.828342,40.821864 L -72.833424,40.820989 L -72.833856,40.820907 L -72.836566,40.820223 L -72.837456,40.820229 L -72.837216,40.819873 L -72.837545,40.819768 L -72.838205,40.819543 L -72.839459,40.819054 L -72.839904,40.818861 z"></path></g></svg>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Wow, by simply typing the shapely object we were able to visualize it.
+How was this done? It's actually quite simple. The object is converted to 
+SVG. You may read about it <a href="https://stackoverflow.com/questions/53323459/ipython-shell-and-displaying-charts">here</a>.</p>
+<p>This mostly comes from the fact that jupyter notebooks are run in a browser 
+(and this blog is generated from a jupyter notebook). This avoids the need
+for libraries like matplotlib 
+(see <a href="https://ryxcommar.com/2020/04/11/why-you-hate-matplotlib/">here</a> for 
+possible reasons not to use it).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Converting-from-a-shapely-geometry-to-geojson">
+<a class="anchor" href="#Converting-from-a-shapely-geometry-to-geojson" aria-hidden="true"><span class="octicon octicon-link"></span></a>Converting from a shapely geometry to geojson<a class="anchor-link" href="#Converting-from-a-shapely-geometry-to-geojson"> </a>
+</h3>
+<p>The next bit is a bit out of scope of the goal of this blog post, 
+so I will gloss over it quickly.</p>
+<p>We will be plotting the counts per surface area for each zip code.</p>
+<p>We will first convert each row in the zip codes table to a shapely
+geometry:</p>
+<div class="highlight"><pre><span></span><span class="n">zip_code</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'zip_code'</span><span class="p">]</span>
+<span class="n">place_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'city'</span><span class="p">]</span>
+<span class="n">geom_wkt</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'zip_code_geom'</span><span class="p">]</span>
+<span class="n">geom_shapely</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">wkt</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">geom_wkt</span><span class="p">)</span>
+</pre></div>
+<p>and from this, generate a <code>GeoJSON</code> <code>Feature</code> object:</p>
+<div class="highlight"><pre><span></span><span class="n">polygon</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span>
+    <span class="n">geom_shapely</span>
+<span class="p">)</span>
+<span class="n">properties</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'zip_code'</span><span class="p">:</span> <span class="n">zip_code</span><span class="p">,</span>
+    <span class="s1">'place_name'</span><span class="p">:</span> <span class="n">place_name</span>
+<span class="p">}</span>
+<span class="n">feature</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">geojson</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span>
+    <span class="n">geometry</span><span class="o">=</span><span class="n">polygon</span><span class="p">,</span>
+    <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span>
+<span class="p">))</span>
+</pre></div>
+<p>However, in order to keep things robust, I will wrap this in a class.
+The idea here is that we're encoding some kind of information used to 
+render GeoJSON data. When faced with these kind of conversions challenges,
+it is usually good practice to create an "adapter" class that every external
+type converts to. This is especially useful in geospatial data where
+often one might need to convert from WKT to something else etc.</p>
+<p>Here is our wrapper class:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+
+<span class="kn">from</span> <span class="nn">geojson.feature</span> <span class="kn">import</span> <span class="n">FeatureCollection</span>
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span>
+<span class="kn">import</span> <span class="nn">geojson</span>
+
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">ZipCodeGeometry</span><span class="p">:</span>
+    <span class="n">zip_code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">place_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">boundary</span><span class="p">:</span> <span class="n">Polygon</span>
+        
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">dataframe_to_feature_collection</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">geojson</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">FeatureCollection</span><span class="p">:</span>
+        <span class="n">zip_code_geoms</span> <span class="o">=</span> <span class="n">ZipCodeGeometry</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">zip_code_geom</span><span class="o">.</span><span class="n">to_geojson_feature</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">zip_code_geom</span> <span class="ow">in</span> <span class="n">zip_code_geoms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">FeatureCollection</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">))</span>
+        
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ZipCodeGeometry</span><span class="p">]:</span>
+        <span class="n">zip_code_geoms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">zip_code_geoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ZipCodeGeometry</span><span class="o">.</span><span class="n">from_row</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">zip_code_geoms</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_row</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZipCodeGeometry</span><span class="p">:</span>
+        <span class="n">geometries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">zip_code</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'zip_code'</span><span class="p">]</span>
+        <span class="n">place_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'city'</span><span class="p">]</span>
+        <span class="n">geom_wkt</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'zip_code_geom'</span><span class="p">]</span>
+        <span class="n">geom_shapely</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">wkt</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">geom_wkt</span><span class="p">)</span>
+        
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">ZipCodeGeometry</span><span class="p">(</span>
+                <span class="n">zip_code</span><span class="o">=</span><span class="n">zip_code</span><span class="p">,</span>
+                <span class="n">place_name</span><span class="o">=</span><span class="n">place_name</span><span class="p">,</span>
+                <span class="n">boundary</span><span class="o">=</span><span class="n">geom_shapely</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">geometry</span>
+        
+    <span class="k">def</span> <span class="nf">to_geojson_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">geojson</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">Feature</span><span class="p">:</span> 
+        <span class="n">polygon</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span>
+        <span class="p">)</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'zip_code'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span>
+            <span class="s1">'place_name'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">place_name</span>
+                     <span class="p">}</span>
+        <span class="n">feature</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">geojson</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">polygon</span><span class="p">,</span>
+            <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">feature</span><span class="p">[</span><span class="s1">'geometry'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s1">'geometry'</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">feature</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>And the conversion:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">zip_code_geojson</span> <span class="o">=</span> <span class="n">ZipCodeGeometry</span><span class="o">.</span><span class="n">dataframe_to_feature_collection</span><span class="p">(</span><span class="n">df_zip_codes</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We now have everything we need to plot!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Part-2:-plotting-with-plotly">
+<a class="anchor" href="#Part-2:-plotting-with-plotly" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 2: plotting with plotly<a class="anchor-link" href="#Part-2:-plotting-with-plotly"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Plotting with plotly is easy:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">choropleth_mapbox</span><span class="p">(</span>
+    <span class="n">df_trees</span><span class="p">,</span>
+    <span class="n">geojson</span><span class="o">=</span><span class="n">zip_code_geojson</span><span class="p">,</span>
+    <span class="n">locations</span><span class="o">=</span><span class="s1">'zip_code'</span><span class="p">,</span>
+    <span class="n">color_continuous_scale</span><span class="o">=</span><span class="s1">'Viridis'</span><span class="p">,</span>
+    <span class="n">range_color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1300</span><span class="p">),</span>
+    <span class="n">zoom</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">center</span><span class="o">=</span><span class="p">{</span><span class="s2">"lat"</span><span class="p">:</span> <span class="mf">40.78307</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">:</span> <span class="o">-</span><span class="mf">73.95423</span><span class="p">},</span>
+    <span class="n">labels</span><span class="o">=</span><span class="p">{</span><span class="s1">'count'</span><span class="p">:</span><span class="s1">'count'</span><span class="p">}</span>
+    <span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">margin</span><span class="o">=</span><span class="p">{</span><span class="s2">"r"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"t"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"l"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"b"</span><span class="p">:</span><span class="mi">0</span><span class="p">})</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since the plot ends up being quite large to render, I have converted it to a 
+jpg image below (and commented out the lines).</p>
+<p>Note that had I wanted to display the full interactive plot, I could have used this:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+    <span class="n">HTML</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">to_html</span><span class="p">())</span>
+</pre></div>
+<p>However, the geojson data involved for the plot ends up taking up a lot
+of space (&gt;40MB), and so to avoid this space usage I just output it as an image:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#    file.write(fig.to_image(format='jpg', scale=4))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><figure>
+  
+    <img class="docimage" src="/blog/images/copied_from_nb/images/2021_05_30_newyork_trees.jpg" alt="Tree Coverage of New York" style="max-width: 600px">
+    
+    
+</figure>
+</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Some-Observations">
+<a class="anchor" href="#Some-Observations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Some Observations<a class="anchor-link" href="#Some-Observations"> </a>
+</h1>
+<p>It looks like the regions that are the shadiest are closest to 
+Central Park (upper left region with the yellow zip code boxes).</p>
+<h2 id="Why-are-there-missing-regions?">
+<a class="anchor" href="#Why-are-there-missing-regions?" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why are there missing regions?<a class="anchor-link" href="#Why-are-there-missing-regions?"> </a>
+</h2>
+<p>You'll also notice that some areas appear to be missing.
+At first, I thought it was an artifact of plotting.
+For example, you can see that central park does not appear to belong to any zip code.
+You can check this specific zip code in the census bureau page <a href="https://data.census.gov/cedsci/map?q=10128&amp;tid=ACSDP5Y2019.DP05&amp;mode=thematic&amp;vintage=2019&amp;layer=VT_2019_860_00_PY_D1&amp;cid=DP05_0001E">here</a>.
+where you'll see something like this:
+<figure>
+  
+    <img class="docimage" src="/blog/images/copied_from_nb/images/2021-05-31-zip-codes-census-example.png" alt="zip code 10128" style="max-width: 600px">
+    
+    
+</figure>
+
+This is the official zip code tabulated area provided by the US census.</p>
+<p>Note that this differs from what would see in google maps:
+<figure>
+  
+    <img class="docimage" src="/blog/images/copied_from_nb/images/2021-05-31-zip-codes-google-maps-example.png" alt="google maps zip code 10128" style="max-width: 600px">
+    
+    
+</figure>
+
+which is more or less what I would have expected. However, it makes sense
+that non-inhabited areas would not be included in zip code tabulated areas.</p>
+<h2 id="Are-trees-from-Central-Park-being-counted-in-the-regions-with-highest-tree-per-surface-area?">
+<a class="anchor" href="#Are-trees-from-Central-Park-being-counted-in-the-regions-with-highest-tree-per-surface-area?" aria-hidden="true"><span class="octicon octicon-link"></span></a>Are trees from Central Park being counted in the regions with highest tree per surface area?<a class="anchor-link" href="#Are-trees-from-Central-Park-being-counted-in-the-regions-with-highest-tree-per-surface-area?"> </a>
+</h2>
+<p>Also, coincidentially, the areas that appear to be missing
+are central park, which is a host to more than 20,000 trees.
+It is then resonable to suspect that perhaps some of the trees being 
+counted in these regions were accidentally counted from central park.
+Is is possible that this happened somehow?
+The best way to check that is to just look at the data.</p>
+<p>Let's look at zip code 10128 which is one of these problem regions.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_zc_10128</span> <span class="o">=</span> <span class="n">df_trees</span><span class="p">[</span><span class="n">df_trees</span><span class="p">[</span><span class="s1">'zip_code'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'10128'</span><span class="p">]</span>
+<span class="n">df_zc_10128</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">'latitude'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_zc_10128</span><span class="p">[</span><span class="s1">'center'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">wkt</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+<span class="n">df_zc_10128</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">'longitude'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_zc_10128</span><span class="p">[</span><span class="s1">'center'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">wkt</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># I am setting a mapbox token here to allow for street view</span>
+<span class="n">px</span><span class="o">.</span><span class="n">set_mapbox_access_token</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'MAPBOX_TOKEN'</span><span class="p">])</span>
+
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter_mapbox</span><span class="p">(</span>
+    <span class="n">df_zc_10128</span><span class="p">,</span>
+    <span class="n">lat</span><span class="o">=</span><span class="s2">"latitude"</span><span class="p">,</span>
+    <span class="n">lon</span><span class="o">=</span><span class="s2">"longitude"</span><span class="p">,</span>    
+    <span class="n">zoom</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">center</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"lat"</span><span class="p">:</span> <span class="mf">40.78307</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">:</span> <span class="o">-</span><span class="mf">73.95423</span><span class="p">},</span>
+    <span class="n">color_continuous_scale</span><span class="o">=</span><span class="n">px</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">cyclical</span><span class="o">.</span><span class="n">IceFire</span><span class="p">,</span> <span class="n">size_max</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="c1">#fig.show()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Again, I converted the figure to image to save space.</p>
+<div class="highlight"><pre><span></span><span class="n">output_filename</span> <span class="o">=</span> <span class="s1">'images/2021_05_30_zip_code_10128.jpg'</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="s1">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">to_image</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">'jpg'</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+<p>We get:</p>
+<p><figure>
+  
+    <img class="docimage" src="/blog/images/copied_from_nb/images/2021_05_30_zip_code_10128.jpg" alt="" style="max-width: 600px">
+    
+    
+</figure>
+</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As you can see, the trees are legitimate!!!!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Conclusion">
+<a class="anchor" href="#Conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion<a class="anchor-link" href="#Conclusion"> </a>
+</h1>
+<p>We reached the end. This blog post walked you through how to go from
+data to meaningful visualization for a sample data set in bigquery.
+In this case, we were curious to find regions that contained the most
+large trees, and thus were the most likely to be shaded.
+We found that the shadiest region is actually very close to Central
+Park (Upper East Side).</p>
+<h1 id="Next-Steps">
+<a class="anchor" href="#Next-Steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Next Steps<a class="anchor-link" href="#Next-Steps"> </a>
+</h1>
+<p>I hope this is motivating enough to start exploring the public
+datasets offered in bigquery.
+You can find them all <a href="https://cloud.google.com/bigquery/public-data">here</a>.</p>
+<p>Also, for visualization, I demonstrated choropleth plots.
+It's also possible to visualize using tiling schemes. A very common
+one is the hextile, which tends to lead to nice looking visualizations.
+See <a href="https://plotly.com/python/hexbin-mapbox/">here</a> for more details.
+I hope to delve into it in more detail in a future post (but it is out 
+of scope here for now).</p>
+<p>I hope you enjoyed it!</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="jrmlhermitte/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/fastpages/jupyter/2021/05/30/visualizing-trees.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jrmlhermitte" title="jrmlhermitte"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/julien-lhermitte-6374b77" title="julien-lhermitte-6374b77"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#linkedin"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

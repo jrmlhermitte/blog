@@ -5,13 +5,19 @@ description = ""
 authors = ["Julien Lhermitte"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.7,<3.10"
 jupyter = "^1.0.0"
 numpy = "^1.20.3"
 jupyterlab = "^3.0.15"
 plotly = "^4.14.3"
 jupyterlab-vim = "^0.14.2"
 pandas = "^1.2.4"
+google-cloud-bigquery = {extras = ["bqstorage", "pandas"], version = "^2.17.0"}
+tqdm = "^4.61.0"
+geojson = "^2.5.0"
+Shapely = "^1.7.1"
+ipywidgets = "^7.6.3"
+psutil = "^5.8.0"
 
 [tool.poetry.dev-dependencies]
 

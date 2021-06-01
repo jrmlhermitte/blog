@@ -79,7 +79,7 @@ window.onload = wrap_img;
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/publications/">Select Publications</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
@@ -93,7 +93,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      9 min read
+      10 min read
     
 </span></p>
 
@@ -1094,7 +1094,15 @@ to use random downsampling.<a href="#fnref-1" class="footnote footnotes">↩</a>
 true. A good example is two cat classifiers trained on the same
 pretrained network but with different parameters. In this case,
 these will not be independent because they will likely start with
-the same initial features (i.e. given classifier <a href="#fnref-2" class="footnote footnotes">↩</a></p></div>
+the same initial features (i.e. given classifier A predicts that
+the image is a cat because it has a tail and tall ears, classifier B
+will probably also likely classify it as a cat). However, the case of web
+scraping will often be independent enough. A good example is something
+that looks for article titles from different metadata, say the <code>&lt;title&gt;</code>
+field and the <code>&lt;meta key='og:title' content='...'&gt;</code> meta field.
+In this case, the  presence of the <code>meta</code> field would not directly 
+influence the prediction of the title classifier that looks for the 
+<code>&lt;title&gt;</code> field.<a href="#fnref-2" class="footnote footnotes">↩</a></p></div>
 
 </div>
 </div>
